@@ -1,10 +1,10 @@
 -- MSSQL için aktif veritabanının C# Entity Class'larınızı oluşturur
 
-declare @tableName varchar(200)
-declare @columnName varchar(200)
-declare @datatype varchar(50)
-declare @sType varchar(50)
-declare @sProperty varchar(200)
+declare @tableName nvarchar(200)
+declare @columnName nvarchar(200)
+declare @datatype nvarchar(50)
+declare @sType nvarchar(50)
+declare @sProperty nvarchar(200)
 declare @isNullable nvarchar(5)
 
 DECLARE table_cursor CURSOR FOR 
@@ -19,7 +19,8 @@ INTO @tableName
 WHILE @@FETCH_STATUS = 0
 BEGIN
 
-PRINT 'public class ' + LEFT(@tableName, LEN(@tableName) - 1) + ' : IEntity
+--PRINT 'public class ' + LEFT(@tableName, LEN(@tableName) - 1) + ' : IEntity
+PRINT 'public class ' + REPLACE(REPLACE(REPLACE(@tableName,'LAR',''),'LERI','') ,'LER','')  +' : IEntity
 {'
 
     DECLARE column_cursor CURSOR FOR 
@@ -46,6 +47,8 @@ PRINT 'public class ' + LEFT(@tableName, LEN(@tableName) - 1) + ' : IEntity
 	when 'uniqueidentifier' then 'Guid'
 	when 'datetime' then 'DateTime'
 	when 'bit' then 'bool'
+	when 'varbinary' then 'byte[]'
+	when 'binary' then 'byte[]'
 	else 'string'
 	END
 
