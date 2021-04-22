@@ -5,6 +5,7 @@ declare @columnName varchar(200)
 declare @datatype varchar(50)
 declare @sType varchar(50)
 declare @sProperty varchar(200)
+declare @isNullable nvarchar(5)
 
 DECLARE table_cursor CURSOR FOR 
 SELECT TABLE_NAME
@@ -22,13 +23,13 @@ PRINT 'public class ' + LEFT(@tableName, LEN(@tableName) - 1) + ' : IEntity
 {'
 
     DECLARE column_cursor CURSOR FOR 
-    SELECT COLUMN_NAME, DATA_TYPE
+    SELECT COLUMN_NAME, DATA_TYPE,IS_NULLABLE
     from [INFORMATION_SCHEMA].[COLUMNS] 
 	WHERE [TABLE_NAME] = @tableName
 	order by [ORDINAL_POSITION]
 
     OPEN column_cursor
-    FETCH NEXT FROM column_cursor INTO @columnName, @datatype
+    FETCH NEXT FROM column_cursor INTO @columnName, @datatype,@isNullable
 
     WHILE @@FETCH_STATUS = 0
     BEGIN
@@ -47,9 +48,21 @@ PRINT 'public class ' + LEFT(@tableName, LEN(@tableName) - 1) + ' : IEntity
 	when 'bit' then 'bool'
 	else 'string'
 	END
+
+
+	-- is_nullable
+	select @sType = case @isNullable
+	when 'NO' then @sType
+	when 'YES' then (case @sType when 'string' then @sType else 'Nullable<'+@sType+'>' end)      
+	END
+
+
+
 		SELECT @sProperty = '	public ' + @sType + ' ' + @columnName + ' { get; set;}'
 		PRINT @sProperty
-		FETCH NEXT FROM column_cursor INTO @columnName, @datatype
+		FETCH NEXT FROM column_cursor INTO @columnName, @datatype,@isNullable
+
+
 	END
     CLOSE column_cursor
     DEALLOCATE column_cursor
@@ -61,3 +74,6 @@ PRINT 'public class ' + LEFT(@tableName, LEN(@tableName) - 1) + ' : IEntity
 END
 CLOSE table_cursor
 DEALLOCATE table_cursor
+
+
+
