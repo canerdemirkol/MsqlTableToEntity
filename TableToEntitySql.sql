@@ -38,6 +38,7 @@ PRINT 'public class ' + REPLACE(REPLACE(REPLACE(@tableName,'LAR',''),'LERI','') 
 	-- datatype
 	select @sType = case @datatype
 	when 'int' then 'int'
+	when 'bigint' then 'Int64'
 	when 'decimal' then 'decimal'
 	when 'money' then 'decimal'
 	when 'char' then 'string'
